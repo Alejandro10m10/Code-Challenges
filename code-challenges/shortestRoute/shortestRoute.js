@@ -19,11 +19,16 @@ const gasolinaMatriz = [
     [160, 160, 157, 0],
 ]
 
+let paths = [];
+
 init();
 
 function init(){
     createObjects(cities);
+    console.time('loop');
     recorrerCiudades(permutaciones);
+    getShortestRoute();
+    console.timeEnd('loop');
 }
 
 // Funciones
@@ -58,8 +63,14 @@ function createObjects(cities){
 }
 
 function recorrerCiudades(rutas){
-    
-    rutas.forEach( (ruta, i) => {
+    rutas.forEach( ruta => {
+
+        let finalObject = {
+            'ruta': `${ruta}`,
+            'costos': {
+                },
+            };
+
         let costoDistancia = 0, 
             rutaLenght = ruta.length;
 
@@ -71,9 +82,32 @@ function recorrerCiudades(rutas){
             
             costoDistancia += getCosto(actualCity, nextCity);
         }
-        console.log(costoDistancia);
+        finalObject.costos.distancia = costoDistancia;
+
+        paths.push(finalObject);
     });
-    
+}
+
+function getShortestRoute(){
+    let shortestRoute = [],
+        shortestDistance;
+
+    for (let i = 0; i < paths.length; i++) {
+        shortestDistance = paths[i].costos.distancia;
+
+        for (let j = 0; j < paths.length; j++) {
+            if(i === j) continue;
+            nextDistance = paths[j].costos.distancia;
+            if(shortestDistance > nextDistance) shortestDistance = nextDistance;
+        }
+    }
+
+    paths.forEach(path => {
+        let pathCosto = path.costos.distancia;
+        if(pathCosto === shortestDistance) shortestRoute.push(path)
+    });
+
+    console.log(shortestRoute);
 }
 
 function getCosto(actualCity, nextCity){
@@ -86,7 +120,7 @@ function getCosto(actualCity, nextCity){
                 let ciudadSiguiente = siguienteCamino.ciudadHasta;
                 if(ciudadSiguiente === nextCity){
                     costo = siguienteCamino.costo;
-                    console.log(ciudadActual + " -> " + ciudadSiguiente + " Costo: " + costo);
+                    //console.log(ciudadActual + " -> " + ciudadSiguiente + " Costo: " + costo);
                     return costo;
                 }
             });
