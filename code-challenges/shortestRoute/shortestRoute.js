@@ -4,7 +4,6 @@ const restCities = ["C1", "C2", "C3"];
 const cities = [firstCity, ...restCities];
 const permutaciones = permutations(restCities);
 const caminos = [];
-let costoFinal = 0;
 
 const costoMatriz = [
     [0, 3, 4, 2],
@@ -42,59 +41,56 @@ function permutations(array){
 }
 
 function createObjects(cities){
-    let citiesLength = cities.length;
-    for (let i = 0; i < 4; i++) {
-        caminos.push(
-            {
-                ciudadDesde: `C${i}`,
-                recorrido: []
-            }
-        );
+    cities.forEach( (city, i) => {
+        caminos.push({
+            ciudadDesde: `${city}`,
+            recorrido: []
+        });
 
-        for (let j = 0; j < 4; j++) {
+        for (let j = 0; j < costoMatriz.length; j++) {
             caminos[i].recorrido.push({
                 ciudadHasta:  `C${j}`,
-                costo: costoMatriz[i][j],
+                costo: costoMatriz[i][j]
             })
         }
-    }
-
-    console.log(caminos);
+    });
+    //console.log(caminos);
 }
 
 function recorrerCiudades(rutas){
-    rutas.forEach( (ruta) => {
-        for(let i = 0 ; i < ruta.length ; i++){
+    
+    rutas.forEach( (ruta, i) => {
+        let costoDistancia = 0, 
+            rutaLenght = ruta.length;
+
+        for(let i = 0 ; i < rutaLenght ; i++){
             let nextIndex = i + 1;
-            if(nextIndex >= ruta.length) continue;
+            if(nextIndex >= rutaLenght) continue;
             let actualCity = ruta[i], 
                 nextCity =  ruta[nextIndex];
-
-            //console.log(actualCity + " -> " + nextCity);
-            getCosto(actualCity, nextCity);
+            
+            costoDistancia += getCosto(actualCity, nextCity);
         }
-
-        console.log(costoFinal);
-        costoFinal = 0;
-        console.log(' ---- ');
-
+        console.log(costoDistancia);
     });
+    
 }
 
 function getCosto(actualCity, nextCity){
-    caminos.forEach(camino => {
+    let costo = 0;
+    caminos.forEach( camino => {
         let ciudadActual = camino.ciudadDesde;
-        let recorrido = camino.recorrido;
-
         if(ciudadActual === actualCity){
+            let recorrido = camino.recorrido;
             recorrido.forEach(siguienteCamino => {
                 let ciudadSiguiente = siguienteCamino.ciudadHasta;
                 if(ciudadSiguiente === nextCity){
-                    let costo = siguienteCamino.costo;
-                    costoFinal += costo;
+                    costo = siguienteCamino.costo;
                     console.log(ciudadActual + " -> " + ciudadSiguiente + " Costo: " + costo);
+                    return costo;
                 }
             });
         }
     });
+    return costo;
 };
